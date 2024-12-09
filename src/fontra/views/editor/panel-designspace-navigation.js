@@ -192,7 +192,7 @@ export default class DesignspaceNavigationPanel extends Panel {
       },
       {
         id: "glyph-layers-accordion-item",
-        label: "Source layers", // XXXX TODO add translate strings
+        label: translate("sidebar.designspace-navigation.glyph-source-layers"),
         open: true,
         content: html.div(
           {
