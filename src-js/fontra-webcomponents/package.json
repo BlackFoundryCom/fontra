@@ -1,0 +1,7 @@
+{
+  "name": "@fontra/web-components",
+  "exports": {
+    "./*": "./src/*"
+  },
+  "type": "module"
+}

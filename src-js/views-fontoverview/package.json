@@ -1,0 +1,12 @@
+{
+  "name": "@fontra/views-fontoverview",
+  "exports": {
+    "./start.js": "./src/start.js",
+    "./fontoverview.js": "./src/fontoverview.js",
+    "./fontoverview.html": "./fontoverview.html"
+  },
+  "type": "module",
+  "fontra": {
+    "view": "fontoverview"
+  }
+}
