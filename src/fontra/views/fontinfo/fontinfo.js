@@ -4,6 +4,7 @@ import { CrossAxisMappingPanel } from "./panel-cross-axis-mapping.js";
 import { DevelopmentStatusDefinitionsPanel } from "./panel-development-status-definitions.js";
 import { FontInfoPanel } from "./panel-font-info.js";
 import { SourcesPanel } from "./panel-sources.js";
+import { makeFontraMenuBar } from "/core/fontra-menus.js";
 import { translate } from "/core/localization.js";
 import { ViewController } from "/core/view-controller.js";
 
@@ -17,6 +18,9 @@ export class FontInfoController extends ViewController {
 
     const url = new URL(window.location);
     this.selectedPanel = url.hash ? url.hash.slice(1) : "font-info-panel";
+
+    const myMenuBar = makeFontraMenuBar(["File", "Edit", "View", "Font"], this);
+    document.querySelector(".top-bar-container").appendChild(myMenuBar);
 
     const panelContainer = document.querySelector("#panel-container");
     const headerContainer = document.querySelector("#header-container");
