@@ -21,7 +21,25 @@ import "/web-components/add-remove-buttons.js";
 import "/web-components/designspace-location.js";
 import { dialogSetup, message } from "/web-components/modal-dialog.js";
 
-const cardsInfos = {};
+addStyleSheet(`
+.font-sources-container {
+  display: flex;
+  height: calc(100vh - 7em);
+}
+
+#font-sources-container-names {
+  display: grid;
+  align-content: start;
+  gap: 0.5em;
+}
+
+#font-sources-container-source-content {
+  display: grid;
+  gap: 0.5em;
+  width: 100%;
+  overflow: auto;
+}
+`);
 
 export class SourcesPanel extends BaseInfoPanel {
   static title = "sources.title";
@@ -46,38 +64,60 @@ export class SourcesPanel extends BaseInfoPanel {
       this.fontController.axes.axes
     );
 
+    this.panelElement.innerHTML = "";
+
     const container = html.div({
-      style: "display: grid; gap: 0.5em;",
+      class: "font-sources-container",
     });
 
-    for (const identifier of this.fontController.getSortedSourceIdentifiers()) {
-      if (!cardsInfos[identifier]) {
-        cardsInfos[identifier] = {};
-      }
-      container.appendChild(
-        new SourceBox(
-          this.fontAxesSourceSpace,
-          sources,
-          identifier,
-          this.postChange.bind(this),
-          this.setupUI.bind(this)
-        )
+    const containerSourcesNames = html.div({
+      id: "font-sources-container-names",
+    });
+
+    const containerSourceContent = html.div({
+      id: "font-sources-container-source-content",
+    });
+
+    for (const [i, identifier] of enumerate(
+      this.fontController.getSortedSourceIdentifiers()
+    )) {
+      const sourceBoxNameElement = new SourceNameBox(
+        this.fontAxesSourceSpace,
+        sources,
+        identifier,
+        this.postChange.bind(this),
+        this.setupUI.bind(this)
       );
+      if (i == 0) {
+        // be default the first source is selected.
+        sourceBoxNameElement.classList.add("selected");
+      }
+      containerSourcesNames.appendChild(sourceBoxNameElement);
     }
 
-    this.panelElement.innerHTML = "";
-    this.panelElement.style = `
-    gap: 1em;
-    `;
-    this.panelElement.appendChild(
+    containerSourcesNames.appendChild(
       html.input({
         type: "button",
         class: "fontra-button",
         style: `justify-self: start;`,
-        value: translate("sources.button.new-font-source"),
+        value: "+", //translate("sources.button.new-font-source") // TODO: do we want to remove not used tanslation keys in the google sheet, or do we keep them just in case we may need them again one day?
         onclick: (event) => this.newSource(),
       })
     );
+
+    // first source
+    containerSourceContent.appendChild(
+      new SourceBox(
+        this.fontAxesSourceSpace,
+        sources,
+        this.fontController.getSortedSourceIdentifiers()[0],
+        this.postChange.bind(this),
+        this.setupUI.bind(this)
+      )
+    );
+
+    container.appendChild(containerSourcesNames);
+    container.appendChild(containerSourceContent);
     this.panelElement.appendChild(container);
     this.panelElement.focus();
   }
@@ -279,36 +319,125 @@ export class SourcesPanel extends BaseInfoPanel {
 }
 
 addStyleSheet(`
-:root {
-  --fontra-ui-font-info-sources-panel-max-list-height: 12em;
+  .fontra-ui-font-info-sources-panel-source-name-box {
+    background-color: var(--ui-element-background-color);
+    border-radius: 0.5em;
+    padding: 1em;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: max-content auto;
+    grid-column-gap: 1em;
+  }
+
+  .fontra-ui-font-info-sources-panel-source-name-box.selected {
+    background-color: var(--horizontal-rule-color);
+  }
+
+  .fontra-ui-font-info-sources-panel-icon {
+    justify-self: end;
+    align-self: start;
+  }
+
+`);
+
+class SourceNameBox extends HTMLElement {
+  constructor(fontAxesSourceSpace, sources, sourceIdentifier, postChange, setupUI) {
+    super();
+    this.classList.add("fontra-ui-font-info-sources-panel-source-name-box");
+    this.id = `source-name-box-${sourceIdentifier}`;
+    this.fontAxesSourceSpace = fontAxesSourceSpace;
+    this.sources = sources;
+    this.sourceIdentifier = sourceIdentifier;
+    this.postChange = postChange;
+    this.setupUI = setupUI;
+    this.controllers = {};
+    this._updateContents();
+  }
+
+  get source() {
+    return this.sources[this.sourceIdentifier];
+  }
+
+  deleteSource() {
+    const undoLabel = translate("sources.undo.delete", this.source.name);
+    const root = { sources: this.sources };
+    const changes = recordChanges(root, (root) => {
+      delete root.sources[this.sourceIdentifier];
+    });
+    if (changes.hasChange) {
+      this.postChange(changes.change, changes.rollbackChange, undoLabel);
+      this.setupUI();
+    }
+  }
+
+  onclickFunc() {
+    const sourceNameBoxes = document.querySelectorAll(
+      ".fontra-ui-font-info-sources-panel-source-name-box"
+    );
+    for (const sourceBox of sourceNameBoxes) {
+      if (sourceBox != this) {
+        sourceBox.classList.remove("selected");
+      }
+    }
+    this.classList.add("selected");
+    // update content card
+
+    const containerSourceContent = document.getElementById(
+      "font-sources-container-source-content"
+    );
+    containerSourceContent.innerHTML = "";
+    containerSourceContent.appendChild(
+      new SourceBox(
+        this.fontAxesSourceSpace,
+        this.sources,
+        this.sourceIdentifier,
+        this.postChange.bind(this),
+        this.setupUI.bind(this)
+      )
+    );
+  }
+
+  _updateContents() {
+    (this.onclick = (event) => this.onclickFunc()),
+      // this.innerHTML = `${this.source.name}`;
+
+      this.append(
+        html.div({ id: `source-name-box-name-${this.sourceIdentifier}` }, [
+          this.source.name,
+        ])
+      );
+
+    this.append(
+      html.createDomElement("icon-button", {
+        "class": "fontra-ui-font-info-sources-panel-icon",
+        "src": "/tabler-icons/trash.svg",
+        "onclick": (event) => this.deleteSource(),
+        "data-tooltip": translate("sources.tooltip.delete-source"),
+        "data-tooltipposition": "right",
+      })
+    );
+  }
 }
 
+customElements.define("source-name-box", SourceNameBox);
+
+addStyleSheet(`
 .fontra-ui-font-info-sources-panel-source-box {
   background-color: var(--ui-element-background-color);
   border-radius: 0.5em;
   padding: 1em;
-  cursor: pointer;
-  display: grid;
-  grid-template-rows: auto auto;
-  grid-template-columns: max-content max-content max-content max-content auto;
-  grid-row-gap: 0.1em;
-  grid-column-gap: 1em;
+  margin-left: 1em;
+  height: fit-content;
 }
 
 .fontra-ui-font-info-sources-panel-column {
   display: grid;
-  grid-template-columns: minmax(4.5em, max-content) max-content;
+  grid-template-columns: minmax(4.5em, max-content) minmax(40%, max-content);
   gap: 0.5em;
   align-items: start;
   align-content: start;
-  overflow: auto;
-}
-
-.fontra-ui-font-info-sources-panel-header.min-height,
-.fontra-ui-font-info-sources-panel-source-box.min-height,
-.fontra-ui-font-info-sources-panel-column.min-height {
-  height: 0;
-  display: none;
+  padding-bottom: 2em;
+  justify-content: center;
 }
 
 .fontra-ui-font-info-sources-panel-line-metrics-hor {
@@ -317,40 +446,7 @@ addStyleSheet(`
 
 .fontra-ui-font-info-sources-panel-header {
   font-weight: bold;
-}
-
-.fontra-ui-font-info-sources-panel-icon {
-  justify-self: end;
-  align-self: start;
-}
-
-.fontra-ui-font-info-sources-panel-icon.open-close-icon {
-  height: 1.5em;
-  width: 1.5em;
-  transition: 120ms;
-}
-
-.fontra-ui-font-info-sources-panel-icon.open-close-icon.item-closed {
-  transform: rotate(180deg);
-}
-
-.fontra-ui-font-info-sources-panel-oneliner > .source-name {
-  font-weight: bold;
-  margin-right: 1em;
-}
-
-.fontra-ui-font-info-sources-panel-oneliner > .axis-is-at-default {
-    color: #999;
-}
-
-.fontra-ui-font-info-sources-panel-oneliner {
-  display: none;
-}
-
-.fontra-ui-font-info-sources-panel-oneliner.min-height {
-  display: block;
-  align-content: center;
-  grid-column-start: span 3;
+  padding-bottom: 1em;
 }
 
 `);
@@ -451,77 +547,6 @@ class SourceBox extends HTMLElement {
     }
   }
 
-  deleteSource() {
-    const undoLabel = translate("sources.undo.delete", this.source.name);
-    const root = { sources: this.sources };
-    const changes = recordChanges(root, (root) => {
-      delete root.sources[this.sourceIdentifier];
-    });
-    if (changes.hasChange) {
-      this.postChange(changes.change, changes.rollbackChange, undoLabel);
-      this.setupUI();
-    }
-  }
-
-  toggleShowHide(altKey) {
-    const cardElements = !altKey
-      ? [this]
-      : document.querySelectorAll(".fontra-ui-font-info-sources-panel-source-box");
-
-    const thisIconElement = this.querySelector("#open-close-icon");
-    const isClosed = thisIconElement.classList.contains("item-closed");
-
-    for (const cardElement of cardElements) {
-      const elementIcon = cardElement.querySelector("#open-close-icon");
-      if (isClosed) {
-        cardsInfos[cardElement.sourceIdentifier].isClosed = false;
-        cardElement.classList.remove("item-closed");
-        elementIcon.classList.remove("item-closed");
-        for (const child of cardElement.children) {
-          child.classList.remove("min-height");
-        }
-      } else {
-        cardsInfos[cardElement.sourceIdentifier].isClosed = true;
-        cardElement.classList.add("item-closed");
-        elementIcon.classList.add("item-closed");
-        for (const child of cardElement.children) {
-          child.classList.add("min-height");
-        }
-      }
-    }
-  }
-
-  getOneliner() {
-    const onelinerElement = html.div({
-      class: "fontra-ui-font-info-sources-panel-oneliner",
-    });
-    onelinerElement.appendChild(
-      html.span({ class: "source-name" }, [this.source.name])
-    );
-
-    const lastItem = this.fontAxesSourceSpace.length - 1;
-    for (const [i, axis] of enumerate(this.fontAxesSourceSpace)) {
-      const axisElement = document.createElement("span");
-      const sourceLocationValue = round(
-        this.source.location.hasOwnProperty(axis.name)
-          ? this.source.location[axis.name]
-          : axis.defaultValue,
-        2
-      );
-
-      axisElement.innerText = `${axis.name}=${sourceLocationValue}${
-        i == lastItem ? "" : ", "
-      }`;
-
-      if (axis.defaultValue == sourceLocationValue) {
-        axisElement.classList.add("axis-is-at-default");
-      }
-      onelinerElement.appendChild(axisElement);
-    }
-
-    return onelinerElement;
-  }
-
   _updateContents() {
     const models = this.models;
 
@@ -543,6 +568,14 @@ class SourceBox extends HTMLElement {
           source[event.key] = event.newValue.trim();
         } else {
           source[event.key] = event.newValue;
+        }
+
+        if (event.key == "name") {
+          // in case of name change, update source name card.
+          const element = document.getElementById(
+            `source-name-box-name-${this.sourceIdentifier}`
+          );
+          element.innerHTML = source[event.key];
         }
       }, `edit source general ${event.key}`);
     });
@@ -569,50 +602,29 @@ class SourceBox extends HTMLElement {
 
     this.innerHTML = "";
     this.append(
-      html.createDomElement("icon-button", {
-        class: "fontra-ui-font-info-sources-panel-icon open-close-icon",
-        id: "open-close-icon",
-        src: "/tabler-icons/chevron-up.svg",
-        open: false,
-        onclick: (event) => this.toggleShowHide(event.altKey),
-      })
+      html.div({ class: "fontra-ui-font-info-sources-panel-header" }, [
+        getLabelFromKey("general"),
+      ])
     );
-
-    // This is the oneliner for the folded card –> only visible when folded.
-    this.append(this.getOneliner());
-
-    for (const key in models) {
-      this.append(
-        html.div({ class: "fontra-ui-font-info-sources-panel-header" }, [
-          getLabelFromKey(key),
-        ])
-      );
-    }
+    this.append(buildElement(this.controllers.general));
 
     this.append(
-      html.createDomElement("icon-button", {
-        "class": "fontra-ui-font-info-sources-panel-icon",
-        "src": "/tabler-icons/trash.svg",
-        "onclick": (event) => this.deleteSource(),
-        "data-tooltip": translate("sources.tooltip.delete-source"),
-        "data-tooltipposition": "left",
-      })
+      html.div({ class: "fontra-ui-font-info-sources-panel-header" }, [
+        getLabelFromKey("location"),
+      ])
     );
-
-    this.append(html.div()); // empty cell for grid with arrow
-
-    this.append(buildElement(this.controllers.general));
     this.append(
       buildElementLocations(this.controllers.location, this.fontAxesSourceSpace)
+    );
+
+    this.append(
+      html.div({ class: "fontra-ui-font-info-sources-panel-header" }, [
+        getLabelFromKey("lineMetricsHorizontalLayout"),
+      ])
     );
     this.append(
       buildElementLineMetricsHor(this.controllers.lineMetricsHorizontalLayout)
     );
-
-    const isClosed = !!cardsInfos[this.sourceIdentifier].isClosed;
-    if (isClosed) {
-      this.toggleShowHide(false);
-    }
   }
 }
 

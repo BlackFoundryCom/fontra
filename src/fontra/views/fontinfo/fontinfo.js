@@ -19,7 +19,7 @@ export class FontInfoController extends ViewController {
     const url = new URL(window.location);
     this.selectedPanel = url.hash ? url.hash.slice(1) : "font-info-panel";
 
-    const myMenuBar = makeFontraMenuBar(["File", "Edit", "View", "Font"], this);
+    const myMenuBar = makeFontraMenuBar(["File", "Font"], this);
     document.querySelector(".top-bar-container").appendChild(myMenuBar);
 
     const panelContainer = document.querySelector("#panel-container");
