@@ -1,0 +1,12 @@
+{
+  "name": "@fontra/views-applicationsettings",
+  "exports": {
+    "./start.js": "./src/start.js",
+    "./applicationsettings.js": "./src/applicationsettings.js",
+    "./applicationsettings.html": "./applicationsettings.html"
+  },
+  "type": "module",
+  "fontra": {
+    "view": "applicationsettings"
+  }
+}
