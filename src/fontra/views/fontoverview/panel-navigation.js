@@ -67,8 +67,8 @@ export class FontOverviewNavigation extends HTMLElement {
       }
 
       icon-button {
-        width: 1.3em;
-        height: 1.3em;
+        width: 1.2em;
+        height: 1.2em;
       }
 
       .glyphset-error-button {
