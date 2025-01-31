@@ -14,22 +14,17 @@ export default class RelatedGlyphPanel extends Panel {
   iconPath = "/tabler-icons/binary-tree-2.svg";
 
   static styles = `
-    .sidebar-glyph-relationships {
-      height: 100%;
-      padding: 1em;
-      display: flex;
-      gap: 1em;
-      flex-direction: column;
-    }
-
-    #related-glyphs-header {
-      text-wrap: wrap;
-    }
-
     glyph-cell-view {
       flex: 1;
       overflow: hidden;
       height: 100%;
+    }
+
+    .related-glyphs-section {
+      height: 100%;
+      display: flex;
+      gap: 1em;
+      flex-direction: column;
     }
 
     .no-related-glyphs {
@@ -80,13 +75,20 @@ export default class RelatedGlyphPanel extends Panel {
 
     return html.div(
       {
-        class: "sidebar-glyph-relationships",
+        class: "panel",
       },
       [
-        html.div({ id: "related-glyphs-header" }, [
-          translate("sidebar.related-glyphs.related-glyphs"),
-        ]),
-        this.glyphCellView,
+        html.div(
+          {
+            class: "panel-section panel-section--flex related-glyphs-section",
+          },
+          [
+            html.div({ id: "related-glyphs-header", class: "text-wrap" }, [
+              translate("sidebar.related-glyphs.related-glyphs"),
+            ]),
+            this.glyphCellView,
+          ]
+        ),
       ]
     );
   }

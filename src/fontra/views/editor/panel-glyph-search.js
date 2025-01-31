@@ -7,12 +7,10 @@ export default class GlyphSearchPanel extends Panel {
   iconPath = "/images/magnifyingglass.svg";
 
   static styles = `
-    .glyph-search {
+    .glyph-search-section {
       height: 100%;
-      width: 100%;
-      display: grid;
-      gap: 1em;
-      padding: 1em;
+      display: flex;
+      flex-direction: column;
     }
   `;
 
@@ -62,12 +60,19 @@ export default class GlyphSearchPanel extends Panel {
   getContentElement() {
     return html.div(
       {
-        class: "glyph-search",
+        class: "panel",
       },
       [
-        html.createDomElement("glyph-search-list", {
-          id: "glyph-search-list",
-        }),
+        html.div(
+          {
+            class: "panel-section panel-section--flex glyph-search-section",
+          },
+          [
+            html.createDomElement("glyph-search-list", {
+              id: "glyph-search-list",
+            }),
+          ]
+        ),
       ]
     );
   }

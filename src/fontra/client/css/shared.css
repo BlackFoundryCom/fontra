@@ -36,3 +36,7 @@ button,
 input[type="button"]:focus {
   outline: none;
 }
+
+.text-wrap {
+  white-space: wrap;
+}

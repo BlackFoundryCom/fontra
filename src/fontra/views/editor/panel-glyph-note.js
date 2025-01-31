@@ -8,15 +8,6 @@ export default class GlyphNotePanel extends Panel {
   iconPath = "/tabler-icons/notes.svg";
 
   static styles = `
-    .sidebar-glyph-note {
-      height: 100%;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5em;
-      padding: 1em;
-    }
-
     #glyph-note-textarea {
       background-color: var(--text-input-background-color);
       color: var(--text-input-foreground-color);
@@ -36,11 +27,13 @@ export default class GlyphNotePanel extends Panel {
       opacity: 40%;
     }
 
+    .glyph-note-section {
+      display: flex;
+      flex-direction: column;
+    }
+
     .glyph-note-header {
-      overflow-x: unset;
-      text-align: left;
-      text-wrap: wrap;
-      word-break: break-word;
+      margin-bottom: 0.5em;
     }
   `;
 
@@ -65,17 +58,24 @@ export default class GlyphNotePanel extends Panel {
   getContentElement() {
     return html.div(
       {
-        class: "sidebar-glyph-note",
+        class: "panel",
       },
       [
-        html.div({ class: "glyph-note-header", id: "glyph-note-header" }, [
-          translate("sidebar.glyph-note"),
-        ]),
-        html.createDomElement("textarea", {
-          rows: 1,
-          wrap: "off",
-          id: "glyph-note-textarea",
-        }),
+        html.div(
+          {
+            class: "panel-section panel-section--flex glyph-note-section",
+          },
+          [
+            html.div({ class: "glyph-note-header", id: "glyph-note-header" }, [
+              translate("sidebar.glyph-note"),
+            ]),
+            html.createDomElement("textarea", {
+              rows: 1,
+              wrap: "off",
+              id: "glyph-note-textarea",
+            }),
+          ]
+        ),
       ]
     );
   }

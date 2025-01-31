@@ -82,7 +82,10 @@ export default class TransformationPanel extends Panel {
     this.infoForm = new Form();
     this.infoForm.appendStyle(TransformationPanel.stylesForm);
     this.contentElement.appendChild(
-      html.div({ class: "selection-transformation-section" }, [this.infoForm])
+      html.div(
+        { class: "panel-section panel-section--flex panel-section--scrollable" },
+        [this.infoForm]
+      )
     );
     this.fontController = this.editorController.fontController;
     this.sceneController = this.editorController.sceneController;
@@ -155,7 +158,7 @@ export default class TransformationPanel extends Panel {
   getContentElement() {
     return html.div(
       {
-        class: "selection-transformation",
+        class: "panel",
       },
       []
     );

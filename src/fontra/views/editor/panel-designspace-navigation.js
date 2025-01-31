@@ -209,7 +209,11 @@ export default class DesignspaceNavigationPanel extends Panel {
       },
     ];
 
-    return html.div({ style: "height: 100%; padding: 1em;" }, [this.accordion]);
+    return html.div({ class: "panel" }, [
+      html.div({ class: "panel-section panel-section--flex panel-section--noscroll" }, [
+        this.accordion,
+      ]),
+    ]);
   }
 
   get fontAxesElement() {

@@ -67,8 +67,8 @@ export class FontOverviewNavigation extends HTMLElement {
       }
 
       icon-button {
-        width: 1.3em;
-        height: 1.3em;
+        width: 1.2em;
+        height: 1.2em;
       }
 
       .glyphset-error-button {
@@ -165,7 +165,9 @@ export class FontOverviewNavigation extends HTMLElement {
 
     accordion.items = accordionItems;
 
-    this.appendChild(accordion);
+    this.appendChild(
+      html.div({ class: "font-overview-navigation-section" }, [accordion])
+    );
 
     this.fontOverviewSettingsController.addKeyListener("projectGlyphSets", (event) =>
       this._updateProjectGlyphSets()

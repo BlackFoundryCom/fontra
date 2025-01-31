@@ -11,23 +11,23 @@ body {
   height: calc(100vh - var(--top-bar-height));
 }
 
-#sidebar-container {
-  display: grid;
-  align-content: start;
-  gap: 1em;
-  padding: 1em 1em 1em 1em;
+.sidebar-container {
   background-color: var(--ui-element-background-color);
   height: calc(100vh - var(--top-bar-height));
-  overflow: auto;
-}
-
-.font-overview-sidebar-shadow-box {
   box-shadow: 0px 0px 8px #0006;
 }
 
 font-overview-navigation {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1em;
   gap: 1em;
+}
+
+.font-overview-navigation-section {
+  flex: 1;
+  overflow: hidden;
 }
 
 #glyph-cell-view-container {

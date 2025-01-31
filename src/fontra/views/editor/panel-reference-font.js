@@ -182,16 +182,9 @@ export default class ReferenceFontPanel extends Panel {
   iconPath = "/images/reference.svg";
 
   static styles = `
-    .sidebar-reference-font {
-      width: 100%;
-      height: 100%;
-      display: flex;
-    }
-
     #reference-font {
       width: 100%;
       display: grid;
-      padding: 1em;
       gap: 1em;
       height: 100%;
       white-space: normal;
@@ -657,45 +650,53 @@ export default class ReferenceFontPanel extends Panel {
 
     return div(
       {
-        class: "sidebar-reference-font",
+        class: "panel",
       },
       [
         div(
           {
-            id: "reference-font",
+            class: "panel-section",
           },
           [
-            div({ class: "title" }, [translate("sidebar.reference-font")]),
-            div({}, [translate("sidebar.reference-font.info")]),
-            this.filesUIList,
             div(
               {
-                style: `
+                id: "reference-font",
+              },
+              [
+                div({ class: "title" }, [translate("sidebar.reference-font")]),
+                div({}, [translate("sidebar.reference-font.info")]),
+                this.filesUIList,
+                div(
+                  {
+                    style: `
                 display: grid;
                 grid-template-columns: max-content auto;
                 align-items: center;
                 gap: 0.666em;
                 `,
-              },
-              [
-                label(
-                  { for: "char-override" },
-                  translate("sidebar.reference-font.custom-character")
+                  },
+                  [
+                    label(
+                      { for: "char-override" },
+                      translate("sidebar.reference-font.custom-character")
+                    ),
+                    input({
+                      type: "text",
+                      id: "char-override",
+                      value: this.model.charOverride,
+                      oninput: (event) =>
+                        (this.model.charOverride = event.target.value),
+                    }),
+                    label(
+                      { for: "language-code" },
+                      translate("sidebar.reference-font.language")
+                    ),
+                    this.languageCodeInput,
+                  ]
                 ),
-                input({
-                  type: "text",
-                  id: "char-override",
-                  value: this.model.charOverride,
-                  oninput: (event) => (this.model.charOverride = event.target.value),
-                }),
-                label(
-                  { for: "language-code" },
-                  translate("sidebar.reference-font.language")
-                ),
-                this.languageCodeInput,
+                div({ class: "reference-font-preview" }, []),
               ]
             ),
-            div({ class: "reference-font-preview" }, []),
           ]
         ),
       ]

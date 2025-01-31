@@ -50,7 +50,7 @@ export class Accordion extends UnlitElement {
 
   .ui-accordion-item-content {
     display: block;
-    overflow: hidden;
+    overflow: auto;
   }
   `;
 
