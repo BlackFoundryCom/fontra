@@ -288,6 +288,7 @@ export const strings = {
   "sidebar.designspace-navigation.glyph-axes": "グリフの補完軸",
   "sidebar.designspace-navigation.glyph-axes.edit": "グリフの補完軸を編集",
   "sidebar.designspace-navigation.glyph-axes.reset": "グリフの補完軸をリセット",
+  "sidebar.designspace-navigation.glyph-source-layers": "Source layers",
   "sidebar.designspace-navigation.glyph-sources": "グリフソース",
   "sidebar.designspace-navigation.glyph-sources.name": "ソース名",
   "sidebar.designspace-navigation.glyph-sources.status": "ステータス",

@@ -273,6 +273,7 @@ export const strings = {
   "sidebar.designspace-navigation.glyph-axes": "字形参数轴",
   "sidebar.designspace-navigation.glyph-axes.edit": "编辑字形参数轴",
   "sidebar.designspace-navigation.glyph-axes.reset": "重置字形参数轴",
+  "sidebar.designspace-navigation.glyph-source-layers": "Source layers",
   "sidebar.designspace-navigation.glyph-sources": "字形源",
   "sidebar.designspace-navigation.glyph-sources.name": "源名称",
   "sidebar.designspace-navigation.glyph-sources.status": "状态",

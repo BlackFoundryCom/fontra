@@ -284,6 +284,7 @@ export const strings = {
   "sidebar.designspace-navigation.glyph-axes": "Glyph axes",
   "sidebar.designspace-navigation.glyph-axes.edit": "Edit glyph axes",
   "sidebar.designspace-navigation.glyph-axes.reset": "Reset glyph axes",
+  "sidebar.designspace-navigation.glyph-source-layers": "Source layers",
   "sidebar.designspace-navigation.glyph-sources": "Glyph sources",
   "sidebar.designspace-navigation.glyph-sources.name": "source name",
   "sidebar.designspace-navigation.glyph-sources.status": "status",
