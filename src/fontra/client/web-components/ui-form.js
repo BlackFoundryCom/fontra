@@ -96,10 +96,6 @@ export class Form extends SimpleElement {
       width: 4em;
     }
 
-    .ui-form-value.text {
-      white-space: normal;
-    }
-
     .ui-form-value.edit-number-x-y,
     .ui-form-value.universal-row {
       display: flex;

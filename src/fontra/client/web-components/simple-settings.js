@@ -2,10 +2,6 @@ import { UnlitElement, div, input, label } from "/core/html-utils.js";
 
 export class SimpleSettings extends UnlitElement {
   static styles = `
-    :host {
-      white-space: normal;
-    }
-
     .header {
       margin-top: 0.6em;
       margin-bottom: 0.2em;

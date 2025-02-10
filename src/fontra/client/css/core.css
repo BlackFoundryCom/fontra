@@ -101,7 +101,6 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden; /* Hide scrollbars */
-  white-space: nowrap;
   overscroll-behavior: none;
   touch-action: none;
   color: var(--foreground-color);

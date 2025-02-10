@@ -140,9 +140,10 @@ export function labeledCheckbox(label, controller, key, options) {
 }
 
 export function labelForElement(label, element, options) {
-  const labelElement = html.label({ for: element.id, style: "text-align: right;" }, [
-    label,
-  ]);
+  const labelElement = html.label(
+    { for: element.id, style: "white-space: nowrap; text-align: right;" },
+    [label]
+  );
   if (options?.labelClass) {
     labelElement.className = options.labelClass;
   }

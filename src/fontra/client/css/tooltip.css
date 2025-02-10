@@ -27,7 +27,6 @@
   content: attr(data-tooltip);
   width: max-content;
   max-width: var(--tooltip-max-width);
-  white-space: normal;
   font-size: 0.9rem;
   font-weight: normal;
   text-align: center;
