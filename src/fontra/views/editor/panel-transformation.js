@@ -34,7 +34,6 @@ export default class TransformationPanel extends Panel {
       justify-content: space-between;
       height: 100%;
       width: 100%;
-      white-space: normal;
     }
 
     .selection-transformation-section {

@@ -36,7 +36,6 @@ export class ModalDialog extends SimpleElement {
     dialog {
       background-color: transparent;
       border: none;
-      white-space: normal;
     }
 
     dialog[open] {

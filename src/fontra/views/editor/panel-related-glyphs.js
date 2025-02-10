@@ -83,7 +83,7 @@ export default class RelatedGlyphPanel extends Panel {
             class: "panel-section panel-section--flex related-glyphs-section",
           },
           [
-            html.div({ id: "related-glyphs-header", class: "text-wrap" }, [
+            html.div({ id: "related-glyphs-header" }, [
               translate("sidebar.related-glyphs.related-glyphs"),
             ]),
             this.glyphCellView,

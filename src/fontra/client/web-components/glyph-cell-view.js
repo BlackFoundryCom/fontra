@@ -109,7 +109,6 @@ export class GlyphCellView extends HTMLElement {
       height: 100%;
       width: 100%;
       overflow-y: auto;
-      white-space: normal;
     }
 
     .glyph-count {
