@@ -1,0 +1,12 @@
+{
+  "name": "@fontra/views-fontinfo",
+  "exports": {
+    "./start.js": "./src/start.js",
+    "./fontinfo.js": "./src/fontinfo.js",
+    "./fontinfo.html": "./fontinfo.html"
+  },
+  "type": "module",
+  "fontra": {
+    "view": "fontinfo"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "@fontra/core",
+  "dependencies": {
+    "@fontra/core": "file:",
+    "bezier-js": "^6.1.4",
+    "fflate": "^0.8.2",
+    "lib-font": "^2.4.3",
+    "tsc": "^2.0.4"
+  },
+  "exports": {
+    "./webpack.config.cjs": "./webpack.config.cjs",
+    "./*": "./src/*"
+  },
+  "scripts": {
+    "test": "mocha tests --reporter spec"
+  },
+  "type": "module",
+  "devDependencies": {
+    "chai": "^5.1.2",
+    "chai-almost": "^1.0.1",
+    "mocha": "^11.0.1"
+  }
+}
