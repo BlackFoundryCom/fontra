@@ -1,4 +1,5 @@
 import { strFromU8, strToU8, unzlibSync, zlibSync } from "../third-party/fflate.js";
+import { getCodePointFromGlyphName } from "./glyph-data.js";
 import { Transform } from "./transform.js";
 
 export function objectsEqual(obj1, obj2) {
@@ -486,8 +487,8 @@ export function* iter(iterable) {
   }
 }
 
-export function splitGlyphNameExtension(glyphName) {
-  const periodIndex = glyphName.indexOf(".");
+export function splitGlyphNameExtension(glyphName, separator = ".") {
+  const periodIndex = glyphName.indexOf(separator);
   const baseGlyphName = periodIndex >= 1 ? glyphName.slice(0, periodIndex) : glyphName;
   const extension = periodIndex >= 1 ? glyphName.slice(periodIndex) : "";
   return [baseGlyphName, extension];

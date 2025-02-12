@@ -1,11 +1,12 @@
 import { InlineSVG } from "./inline-svg.js";
 import { themeColorCSS } from "./theme-support.js";
+import { guessGlyphPlaceholderString } from "/core/glyph-data.js";
 import { SVGPath2D } from "/core/glyph-svg.js";
 import * as html from "/core/html-utils.js";
 import { UnlitElement } from "/core/html-utils.js";
 import * as svg from "/core/svg-utils.js";
 import { Transform } from "/core/transform.js";
-import { assert, getCharFromCodePoint, rgbaToCSS, throttleCalls } from "/core/utils.js";
+import { assert, rgbaToCSS, throttleCalls } from "/core/utils.js";
 
 const colors = {
   "cell-background-color": ["#EEEEEE", "#585858"],
@@ -127,9 +128,10 @@ export class GlyphCell extends UnlitElement {
     this.height = (1 + this.marginTop + this.marginBottom) * this.size;
     assert(this.height === UNSCALED_CELL_HEIGHT, "manual size dependency incorrect");
     this.width = this.height;
-    this._glyphCharacter = this.codePoints?.[0]
-      ? getCharFromCodePoint(this.codePoints[0]) || ""
-      : "";
+    this._placeholderString = guessGlyphPlaceholderString(
+      this.codePoints,
+      this.glyphName
+    );
     this._selected = false;
   }
 
@@ -218,13 +220,14 @@ export class GlyphCell extends UnlitElement {
             : html.div(
                 {
                   class: "glyph-shape-placeholder",
+                  dir: "auto",
                   style: `
                   width: calc(${this.width}px * var(--glyph-cell-scale-factor));
                   font-size: calc(${fallbackFontSize}px * var(--glyph-cell-scale-factor));
                   line-height: ${fallbackFontSize}px;
                 `,
                 },
-                [this._glyphCharacter]
+                [this._placeholderString]
               ),
           html.div(
             {

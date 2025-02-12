@@ -4,6 +4,7 @@ import { parametrize } from "./test-support.js";
 import {
   getCodePointFromGlyphName,
   getSuggestedGlyphName,
+  guessGlyphPlaceholderString,
 } from "../src/fontra/client/core/glyph-data.js";
 
 describe("glyph-data Tests", () => {
@@ -55,6 +56,39 @@ describe("glyph-data Tests", () => {
     (testItem) => {
       const codePoint = getCodePointFromGlyphName(testItem.glyphName);
       expect(codePoint).to.equal(testItem.codePoint);
+    }
+  );
+
+  const guessGlyphPlaceholderString_testData = [
+    { glyphName: "", codePoints: ["A".codePointAt(0)], glyphString: "A" },
+    { glyphName: "B", codePoints: ["A".codePointAt(0)], glyphString: "A" },
+    { glyphName: "alef-ar", codePoints: [0x0627], glyphString: "\u0627" },
+    { glyphName: "alef-ar.isol", codePoints: [], glyphString: "\u0627" },
+    { glyphName: "alef-ar.isol", codePoints: [0xfe8d], glyphString: "\uFE8D" },
+    { glyphName: "alef-ar.fina", codePoints: [], glyphString: "\u200D\u0627" },
+    { glyphName: "alef-ar.fina", codePoints: [0xfe8e], glyphString: "\uFE8E" },
+    { glyphName: "beh-ar.init", codePoints: [], glyphString: "\u0628\u200D" },
+    { glyphName: "beh-ar.medi", codePoints: [], glyphString: "\u200D\u0628\u200D" },
+    { glyphName: "uni0628.medi", codePoints: [], glyphString: "\u200D\u0628\u200D" },
+    { glyphName: "f_i", codePoints: [], glyphString: "fi" },
+    { glyphName: "lam_alef-ar", codePoints: [], glyphString: "\u0644\u0627" },
+    {
+      glyphName: "lam_alef-ar.fina",
+      codePoints: [],
+      glyphString: "\u200D\u0644\u0627",
+    },
+    { glyphName: "lam_lam_alef-ar", codePoints: [], glyphString: "\u0644\u0644\u0627" },
+  ];
+
+  parametrize(
+    "guessGlyphPlaceholderString",
+    guessGlyphPlaceholderString_testData,
+    (testItem) => {
+      const glyphString = guessGlyphPlaceholderString(
+        testItem.codePoints,
+        testItem.glyphName
+      );
+      expect(glyphString).to.equal(testItem.glyphString);
     }
   );
 });
