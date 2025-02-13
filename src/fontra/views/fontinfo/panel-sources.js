@@ -6,12 +6,15 @@ import { translate } from "../core/localization.js";
 import { ObservableController } from "../core/observable-object.js";
 import {
   OptionalNumberFormatter,
+  checkboxListCell,
   labelForElement,
   labeledCheckbox,
   labeledTextInput,
   textInput,
 } from "../core/ui-utils.js";
 import { arrowKeyDeltas, enumerate, modulo, range, round } from "../core/utils.js";
+import { UIList } from "../web-components/ui-list.js";
+import { updateRemoveButton } from "./panel-axes.js";
 import { BaseInfoPanel } from "./panel-base.js";
 import {
   locationToString,
@@ -509,6 +512,12 @@ addStyleSheet(`
   padding-bottom: 1em;
 }
 
+.fontra-ui-font-info-sources-panel-guideline-list {
+  min-width: max-content;
+  max-width: 29.5em; // 4.5 + 25
+  max-height: 12em;
+}
+
 `);
 
 class SourceBox extends HTMLElement {
@@ -541,11 +550,10 @@ class SourceBox extends HTMLElement {
       lineMetricsHorizontalLayout: prepareLineMetricsHorForController(
         source.lineMetricsHorizontalLayout
       ),
+      guidelines: { ...source.guidelines },
       // TODO: hhea, OS/2 line metrics, etc
       // customData: { ...source.customData },
     };
-    // NOTE: Font guidelines could be read/write here,
-    // but makes more sense directly in the glyph editing window.
   }
 
   checkSourceLocation(axisName, value) {
@@ -661,6 +669,12 @@ class SourceBox extends HTMLElement {
       }, `edit line metric ${which} “${lineMetricName}”`); // TODO: translation
     });
 
+    this.controllers.guidelines.addListener((event) => {
+      this.editSource((source) => {
+        source.guidelines = event.newValue;
+      }, `edit guidelines`); // TODO: translation
+    });
+
     this.innerHTML = "";
     this.append(
       html.div({ class: "fontra-ui-font-info-sources-panel-header" }, [
@@ -677,12 +691,21 @@ class SourceBox extends HTMLElement {
         buildElementLocations(this.controllers.location, this.fontAxesSourceSpace)
       );
     }
-    this.append(
-      html.div({ class: "fontra-ui-font-info-sources-panel-header" }, [
-        getLabelFromKey("lineMetricsHorizontalLayout"),
-      ]),
-      buildElementLineMetricsHor(this.controllers.lineMetricsHorizontalLayout)
-    );
+    if (!this.source.isSparse) {
+      // NOTE: Don't show 'Line Metrics' or 'Guidelines' for sparse sources.
+      this.append(
+        html.div({ class: "fontra-ui-font-info-sources-panel-header" }, [
+          getLabelFromKey("lineMetricsHorizontalLayout"),
+        ]),
+        buildElementLineMetricsHor(this.controllers.lineMetricsHorizontalLayout)
+      );
+      this.append(
+        html.div({ class: "fontra-ui-font-info-sources-panel-header" }, [
+          getLabelFromKey("guidelines"),
+        ]),
+        buildFontGuidelineList(this.controllers.guidelines)
+      );
+    }
   }
 }
 
@@ -726,13 +749,133 @@ function buildElementLineMetricsHor(controller) {
     },
     items
       .map(([labelName, keyName]) => {
-        const opts = { continuous: false, formatter: OptionalNumberFormatter };
+        const opts = {
+          continuous: false,
+          formatter: OptionalNumberFormatter,
+          type: "number",
+        };
         const valueInput = textInput(controller, `value-${keyName}`, opts);
         const zoneInput = textInput(controller, `zone-${keyName}`, opts);
         return [labelForElement(labelName, valueInput), valueInput, zoneInput];
       })
       .flat()
   );
+}
+
+function buildFontGuidelineList(controller) {
+  const model = controller.model;
+
+  const makeItem = (label) => {
+    const item = new ObservableController({ ...label });
+    item.addListener((event) => {
+      const newGuidelines = labelList.items.map((guideline) => {
+        return { ...guideline };
+      });
+      model.guidelines = newGuidelines;
+    });
+    return item.model;
+  };
+
+  const items = Object.values(model)?.map(makeItem) || [];
+
+  const labelList = new UIList();
+  labelList.classList.add("fontra-ui-font-info-sources-panel-guideline-list");
+  labelList.style = `min-width: 12em;`;
+  labelList.columnDescriptions = [
+    {
+      key: "name",
+      title: translate("guideline.labels.name"),
+      width: "15em", // TODO: set to 11em once 'Locked' column is added
+      editable: true,
+      continuous: false,
+    },
+    {
+      key: "x",
+      title: "x",
+      width: "4em",
+      align: "right",
+      editable: true,
+      formatter: OptionalNumberFormatter,
+      continuous: false,
+    },
+    {
+      key: "y",
+      title: "y",
+      width: "4em",
+      align: "right",
+      editable: true,
+      formatter: OptionalNumberFormatter,
+      continuous: false,
+    },
+    {
+      key: "angle",
+      title: translate("guideline.labels.angle"),
+      width: "4em",
+      align: "right",
+      editable: true,
+      formatter: OptionalNumberFormatter,
+      continuous: false,
+    },
+    // TODO: Font Guidelines
+    // Once the guidelines can be edited in the editor view, we want to add these columns
+    // {
+    //   key: "dummy", // this is a spacer column
+    //   title: " ",
+    //   width: "0.25em",
+    // },
+    // {
+    //   key: "locked",
+    //   title: translate("guideline.labels.locked"),
+    //   width: "4em",
+    //   cellFactory: checkboxListCell,
+    // },
+  ];
+  labelList.showHeader = true;
+  labelList.minHeight = "5em";
+  labelList.setItems(items);
+
+  const deleteSelectedItem = () => {
+    const index = labelList.getSelectedItemIndex();
+    if (index === undefined) {
+      return;
+    }
+    const items = [...labelList.items];
+    items.splice(index, 1);
+    labelList.setItems(items);
+    const newGuidelines = items.map((guideline) => {
+      return { ...guideline };
+    });
+    model.guidelines = newGuidelines;
+  };
+
+  labelList.addEventListener("deleteKey", deleteSelectedItem);
+
+  const addRemoveButton = html.createDomElement("add-remove-buttons", {
+    addButtonCallback: () => {
+      const newItem = makeItem({
+        name: `Guideline ${labelList.items.length + 1}`,
+        x: 0,
+        y: 0,
+        angle: 0,
+        locked: false,
+      });
+      const newItems = [...labelList.items, newItem];
+      model.guidelines = newItems.map((label) => {
+        return { ...label };
+      });
+      labelList.setItems(newItems);
+      labelList.editCell(newItems.length - 1, "name");
+    },
+    removeButtonCallback: deleteSelectedItem,
+    disableRemoveButton: true,
+  });
+
+  updateRemoveButton(labelList, addRemoveButton);
+
+  return html.div({ style: "display: grid; grid-gap: 0.3em;" }, [
+    labelList,
+    addRemoveButton,
+  ]);
 }
 
 function buildElementLocations(controller, fontAxes) {
@@ -817,6 +960,7 @@ function getLabelFromKey(key) {
     general: translate("sources.labels.general"),
     location: translate("sources.labels.location"),
     lineMetricsHorizontalLayout: translate("sources.labels.line-metrics"),
+    guidelines: translate("sidebar.user-settings.guidelines"),
   };
   return keyLabelMap[key] || key;
 }

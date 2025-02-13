@@ -502,13 +502,11 @@ registerVisualizationLayerDefinition({
   },
   colors: {
     strokeColor: "#0006",
-    boxColor: "#FFFB",
-    color: "#000",
+    strokeColorFontGuideline: "#00BFFF",
   },
   colorsDarkMode: {
     strokeColor: "#FFF8",
-    boxColor: "#1118",
-    color: "#FFF",
+    strokeColorFontGuideline: "#00BFFFC0",
   },
   draw: (context, positionedGlyph, parameters, model, controller) => {
     context.font = `${parameters.fontSize}px fontra-ui-regular, sans-serif`;
@@ -521,16 +519,27 @@ registerVisualizationLayerDefinition({
 
     // Draw glyph guidelines
     for (const guideline of positionedGlyph.glyph.guidelines) {
-      _drawGuideline(context, parameters, guideline);
+      _drawGuideline(context, parameters, guideline, parameters.strokeColor);
     }
 
-    // TODO: Font Guidelines
+    // Draw font guidelines
+    if (!model.fontSourceInstance) {
+      return;
+    }
+    for (const guideline of model.fontSourceInstance.guidelines) {
+      _drawGuideline(
+        context,
+        parameters,
+        guideline,
+        parameters.strokeColorFontGuideline
+      );
+    }
   },
 });
 
-function _drawGuideline(context, parameters, guideline) {
+function _drawGuideline(context, parameters, guideline, strokeColor) {
   withSavedState(context, () => {
-    context.strokeStyle = parameters.strokeColor;
+    context.strokeStyle = strokeColor;
     context.lineWidth = parameters.strokeWidth;
     //translate to guideline origin
     context.translate(guideline.x, guideline.y);
@@ -541,7 +550,7 @@ function _drawGuideline(context, parameters, guideline) {
         context,
         -parameters.iconSize / 2,
         parameters.iconSize / 2,
-        parameters.strokeColor,
+        strokeColor,
         parameters.iconSize
       );
     } else {
@@ -553,28 +562,27 @@ function _drawGuideline(context, parameters, guideline) {
       context.scale(1, -1);
 
       let textWidth;
-      let textHeight;
       let moveText;
       const halfMarker = parameters.originMarkerRadius / 2 + parameters.strokeWidth * 2;
       // draw name
       if (guideline.name) {
         const strLine = `${guideline.name}`;
         textWidth = Math.max(context.measureText(strLine).width);
-        textHeight = Math.max(getTextHeight(context, strLine));
+        const textVerticalCenter = Math.max(getTextVerticalCenter(context, strLine));
 
-        context.fillStyle = parameters.strokeColor;
+        context.fillStyle = strokeColor;
         moveText =
           0 - // this is centered to the guideline origin
           textWidth / 2 - // move half width left -> right aligned to origin
           halfMarker - // move half of the marker radius left + stroke width
           parameters.margin * // move one margin to left to get a short line on the left
             2; // move another margin left to get the margin on the right
-        context.fillText(strLine, moveText, textHeight / 2);
+        context.fillText(strLine, moveText, textVerticalCenter);
       }
 
       // collect lines
       let lines = [[halfMarker, parameters.strokeLength]];
-      if (guideline.name !== undefined) {
+      if (guideline.name !== undefined && guideline.name.trim() !== "") {
         // with name
         lines.push([
           -textWidth / 2 + moveText - parameters.margin,
@@ -1858,7 +1866,7 @@ function drawRoundRect(context, x, y, width, height, radii) {
   context.fill();
 }
 
-function getTextHeight(context, text) {
+function getTextVerticalCenter(context, text) {
   const metrics = context.measureText(text);
-  return metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+  return (metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) / 2;
 }

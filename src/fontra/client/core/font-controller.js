@@ -20,6 +20,7 @@ import {
   colorizeImage,
   getCharFromCodePoint,
   mapObjectValues,
+  normalizeGuidelines,
   sleepAsync,
   throttleCalls,
   uniqueID,
@@ -1140,6 +1141,7 @@ function ensureDenseSources(sources) {
           return { value: metric.value, zone: metric.zone || 0 };
         }
       ),
+      guidelines: normalizeGuidelines(source.guidelines || []),
       customData: source.customData || {},
     };
   });
