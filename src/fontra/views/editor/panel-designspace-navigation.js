@@ -424,7 +424,21 @@ export default class DesignspaceNavigationPanel extends Panel {
     });
 
     this.sourceLayersList = this.accordion.querySelector("#layers-list");
-    this.sourceLayersList.columnDescriptions = [{ key: "shortName" }];
+    this.sourceLayersList.showHeader = true;
+    this.sourceLayersList.columnDescriptions = [
+      { title: "layer name", key: "shortName", width: "14em" },
+      {
+        title: makeClickableIconHeader("/tabler-icons/eye.svg", (event) =>
+          console.log(event)
+        ),
+        key: "visible",
+        cellFactory: makeIconCellFactory([
+          "/tabler-icons/eye-closed.svg",
+          "/tabler-icons/eye.svg",
+        ]),
+        width: "1.2em",
+      },
+    ];
     this.sourceLayersList.addEventListener("listSelectionChanged", (event) => {
       const sourceItem = this.sourcesList.getSelectedItem();
       const layerItem = this.sourceLayersList.getSelectedItem();
@@ -858,12 +872,16 @@ export default class DesignspaceNavigationPanel extends Panel {
     const layerNames =
       varGlyphController.getSourceLayerNamesForSourceIndex(sourceIndex);
 
-    this.sourceLayersList.setItems(
-      layerNames.map((layer) => ({
+    const sourceLayerItems = layerNames.map((layer) => {
+      const item = new ObservableController({
         fullName: layer.fullName,
         shortName: layer.shortName || "foreground",
-      }))
-    );
+        visible: false,
+      });
+      return item.model;
+    });
+
+    this.sourceLayersList.setItems(sourceLayerItems);
 
     // TODO: keep track of the bg layer short name so we can switch sources/glyphs
     // while staying in the "same" bg layer
