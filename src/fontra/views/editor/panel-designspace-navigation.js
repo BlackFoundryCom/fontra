@@ -1,15 +1,15 @@
 import { registerAction } from "/core/actions.js";
-import { getAxisBaseName } from "/core/glyph-controller.js";
+import { BACKGROUND_LAYER_SEPARATOR, getAxisBaseName } from "/core/glyph-controller.js";
 import * as html from "/core/html-utils.js";
 import { htmlToElement } from "/core/html-utils.js";
 import { translate } from "/core/localization.js";
-import { controllerKey, ObservableController } from "/core/observable-object.js";
+import { ObservableController, controllerKey } from "/core/observable-object.js";
 import { labeledTextInput } from "/core/ui-utils.js";
 import {
+  FocusKeeper,
   boolInt,
   enumerate,
   escapeHTMLCharacters,
-  FocusKeeper,
   modulo,
   objectsEqual,
   range,
@@ -1357,7 +1357,9 @@ export default class DesignspaceNavigationPanel extends Panel {
       return;
     }
 
-    const newLayerName = `${selectedSourceItem.layerName}.${nameController.model.sourceLayerName}`;
+    const newLayerName = `${selectedSourceItem.layerName}${{
+      BACKGROUND_LAYER_SEPARATOR,
+    }}${nameController.model.sourceLayerName}`;
     if (glyph.layers[newLayerName]) {
       console.log("layer already exists");
       return;
