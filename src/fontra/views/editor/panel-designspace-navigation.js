@@ -424,6 +424,18 @@ export default class DesignspaceNavigationPanel extends Panel {
     });
 
     this.sourceLayersList = this.accordion.querySelector("#layers-list");
+    this.sourceLayersList.appendStyle(`
+      .clickable-icon-header {
+        transition: 150ms;
+      }
+      .clickable-icon-header:hover {
+        transform: scale(1.1);
+      }
+      .clickable-icon-header:active {
+        transform: scale(1.2);
+      }
+    `);
+
     this.sourceLayersList.showHeader = true;
     this.sourceLayersList.columnDescriptions = [
       { title: "layer name", key: "shortName", width: "14em" },
@@ -878,6 +890,7 @@ export default class DesignspaceNavigationPanel extends Panel {
         shortName: layer.shortName || "foreground",
         visible: false,
       });
+      item.addKeyListener("visible", (event) => console.log(event.newValue));
       return item.model;
     });
 
@@ -1375,9 +1388,7 @@ export default class DesignspaceNavigationPanel extends Panel {
       return;
     }
 
-    const newLayerName = `${selectedSourceItem.layerName}${{
-      BACKGROUND_LAYER_SEPARATOR,
-    }}${nameController.model.sourceLayerName}`;
+    const newLayerName = `${selectedSourceItem.layerName}${BACKGROUND_LAYER_SEPARATOR}${nameController.model.sourceLayerName}`;
     if (glyph.layers[newLayerName]) {
       console.log("layer already exists");
       return;
