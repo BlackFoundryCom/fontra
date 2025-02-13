@@ -5,6 +5,7 @@ import { getSelectedGlyphInfo } from "./scene-model.js";
 import {
   createDomElement,
   div,
+  form,
   input,
   label,
   option,
@@ -190,6 +191,16 @@ export default class ReferenceFontPanel extends Panel {
       gap: 1em;
       white-space: normal;
       align-content: start;
+    }
+
+    .reference-font-items {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5em;
+    }
+
+    .reference-font-list {
+      gap: 0;
     }
 
     .title {
@@ -419,7 +430,9 @@ export default class ReferenceFontPanel extends Panel {
     return this.controller.model;
   }
 
-  async _filesDropHandler(files) {
+  async _filesHandler(files) {
+    if (files.length === 0) return;
+
     const fontItemsInvalid = [];
     const fontItems = [...files]
       .filter((file) => {
@@ -452,10 +465,9 @@ export default class ReferenceFontPanel extends Panel {
       dialog(dialogTitle, dialogMessage, [{ title: translate("dialog.okay") }], 5000);
     }
 
-    const newSelectedItemIndex = this.filesUIList.items.length;
     const newItems = [...this.filesUIList.items, ...fontItems];
     this.filesUIList.setItems(newItems);
-    this.filesUIList.setSelectedItemIndex(newSelectedItemIndex, true);
+    this.filesUIList.setSelectedItemIndex(this.filesUIList.items.length - 1, true);
 
     const writtenFontItems = [...this.model.fontList];
     try {
@@ -621,12 +633,13 @@ export default class ReferenceFontPanel extends Panel {
     this.filesUIList.itemEqualFunc = (a, b) => a.fontIdentifier == b.fontIdentifier;
 
     this.filesUIList.minHeight = "6em";
+    this.filesUIList.classList.add("reference-font-list");
 
-    this.filesUIList.onFilesDrop = (files) => this._filesDropHandler(files);
+    this.filesUIList.onFilesDrop = (files) => this._filesHandler(files);
 
-    this.filesUIList.addEventListener("listSelectionChanged", () => {
-      this._listSelectionChangedHandler();
-    });
+    this.filesUIList.addEventListener("listSelectionChanged", () =>
+      this._listSelectionChangedHandler()
+    );
 
     this.filesUIList.addEventListener("deleteKey", () =>
       this._deleteSelectedItemHandler()
@@ -649,6 +662,35 @@ export default class ReferenceFontPanel extends Panel {
       []
     );
 
+    const fileInput = input(
+      {
+        type: "file",
+        accept: ".ttf,.otf,.woff,.woff2",
+        multiple: true,
+      },
+      []
+    );
+    fileInput.addEventListener("change", async () => {
+      await this._filesHandler(fileInput.files);
+      fileInput.value = null;
+    });
+    const addRemoveButtons = createDomElement("add-remove-buttons");
+    addRemoveButtons.addButtonCallback = () => fileInput.click();
+    addRemoveButtons.removeButtonCallback = async () => {
+      const index = this.filesUIList.getSelectedItemIndex();
+      const maxIndex = () => this.filesUIList.items.length - 1;
+      if (!isNaN(index) && index <= maxIndex()) {
+        await this._deleteItemOrAll(index);
+        this.filesUIList.setSelectedItemIndex(maxIndex(), true);
+      }
+    };
+
+    const disableRemoveButtonIfNeeded = () => {
+      addRemoveButtons.disableRemoveButton = this.filesUIList.items.length === 0;
+    };
+    this.filesUIList.addEventListener("itemsSet", () => disableRemoveButtonIfNeeded());
+    disableRemoveButtonIfNeeded(); // On load
+
     return div(
       {
         class: "panel",
@@ -662,7 +704,11 @@ export default class ReferenceFontPanel extends Panel {
           [
             div({ class: "title" }, [translate("sidebar.reference-font")]),
             div({}, [translate("sidebar.reference-font.info")]),
-            this.filesUIList,
+            div({ class: "reference-font-items" }, [
+              this.filesUIList,
+              form({ enctype: "multipart/form-data", hidden: true }, [fileInput]),
+              addRemoveButtons,
+            ]),
             div(
               {
                 style: `
