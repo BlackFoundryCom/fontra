@@ -39,6 +39,18 @@ import { NumberFormatter } from "/core/ui-utils.js";
 const FONTRA_STATUS_KEY = "fontra.development.status";
 const FONTRA_STATUS_DEFINITIONS_KEY = "fontra.sourceStatusFieldDefinitions";
 
+const LIST_HEADER_ANIMATION_STYLE = `
+.clickable-icon-header {
+  transition: 150ms;
+}
+.clickable-icon-header:hover {
+  transform: scale(1.1);
+}
+.clickable-icon-header:active {
+  transform: scale(1.2);
+}
+`;
+
 export default class DesignspaceNavigationPanel extends Panel {
   identifier = "designspace-navigation";
   iconPath = "/images/sliders.svg";
@@ -370,17 +382,7 @@ export default class DesignspaceNavigationPanel extends Panel {
     const columnDescriptions = this._setupSourceListColumnDescriptions();
 
     this.sourcesList = this.accordion.querySelector("#sources-list");
-    this.sourcesList.appendStyle(`
-      .clickable-icon-header {
-        transition: 150ms;
-      }
-      .clickable-icon-header:hover {
-        transform: scale(1.1);
-      }
-      .clickable-icon-header:active {
-        transform: scale(1.2);
-      }
-    `);
+    this.sourcesList.appendStyle(LIST_HEADER_ANIMATION_STYLE);
     this.sourcesList.showHeader = true;
     this.sourcesList.columnDescriptions = columnDescriptions;
 
@@ -424,18 +426,7 @@ export default class DesignspaceNavigationPanel extends Panel {
     });
 
     this.sourceLayersList = this.accordion.querySelector("#layers-list");
-    this.sourceLayersList.appendStyle(`
-      .clickable-icon-header {
-        transition: 150ms;
-      }
-      .clickable-icon-header:hover {
-        transform: scale(1.1);
-      }
-      .clickable-icon-header:active {
-        transform: scale(1.2);
-      }
-    `);
-
+    this.sourceLayersList.appendStyle(LIST_HEADER_ANIMATION_STYLE);
     this.sourceLayersList.showHeader = true;
     this.sourceLayersList.columnDescriptions = [
       { title: "layer name", key: "shortName", width: "14em" },
