@@ -18,7 +18,7 @@ export class UIList extends UnlitElement {
     ${themeColorCSS(colors)}
 
     :host {
-      display: grid;  /* also set by code below */
+      display: grid;
       grid-template-rows: auto 1fr;
       gap: 0.2em;
       min-height: 0;
@@ -157,7 +157,6 @@ export class UIList extends UnlitElement {
   }
 
   render() {
-    this._updateVisibility();
     this.container.style = this.minHeight ? `min-height: ${this.minHeight};` : "";
     const contents = [];
     if (this.showHeader) {
@@ -193,7 +192,6 @@ export class UIList extends UnlitElement {
     const selectedItem = this.getSelectedItem();
     this.contents.innerHTML = "";
     this.items = items;
-    this._updateVisibility();
     this._itemsBackLog = Array.from(items);
     this.setSelectedItem(selectedItem, shouldDispatchEvent);
     this._addMoreItemsIfNeeded();
@@ -201,10 +199,6 @@ export class UIList extends UnlitElement {
       this.container.scrollLeft = scrollLeft;
       this.container.scrollTop = scrollTop;
     }
-  }
-
-  _updateVisibility() {
-    this.style.display = this.items?.length || this.minHeight ? "grid" : "none";
   }
 
   getSelectedItem() {
