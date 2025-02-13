@@ -634,6 +634,14 @@ export async function mapObjectValuesAsync(obj, func) {
   return result;
 }
 
+export function filterObject(obj, func) {
+  // Return a copy of the object containing the items for which `func(key, value)`
+  // returns `true`.
+  return Object.fromEntries(
+    Object.entries(obj).filter(([key, value]) => func(key, value))
+  );
+}
+
 let _uniqueID = 1;
 export function uniqueID() {
   return _uniqueID++;
