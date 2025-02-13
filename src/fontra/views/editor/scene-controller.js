@@ -1401,14 +1401,18 @@ export class SceneController {
 
     const layerGlyphs = this.getEditingLayerFromGlyphLayers(varGlyph.layers);
     const staticGlyphControllers = {};
+
     for (const [i, source] of enumerate(varGlyph.sources)) {
-      if (source.layerName in layerGlyphs) {
-        staticGlyphControllers[source.layerName] =
-          await this.fontController.getLayerGlyphController(
-            varGlyph.name,
-            source.layerName,
-            i
-          );
+      for (const layerInfo of varGlyph.getSourceLayerNamesForSourceIndex(i)) {
+        const layerName = layerInfo.fullName;
+        if (layerName in layerGlyphs) {
+          staticGlyphControllers[layerName] =
+            await this.fontController.getLayerGlyphController(
+              varGlyph.name,
+              layerName,
+              i
+            );
+        }
       }
     }
     return staticGlyphControllers;

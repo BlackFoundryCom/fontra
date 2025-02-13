@@ -46,6 +46,8 @@ import {
 } from "./var-model.js";
 import { VarPackedPath, joinPaths } from "./var-path.js";
 
+export const BACKGROUND_LAYER_SEPARATOR = "^";
+
 export class VariableGlyphController {
   constructor(glyph, fontAxes, fontSources) {
     this.glyph = glyph;
@@ -507,7 +509,7 @@ export class VariableGlyphController {
       const source = this.sources[sourceIndex];
       this._layerNameToSourceIndex[source.layerName] = sourceIndex;
 
-      const layerNamePrefix = source.layerName + ".";
+      const layerNamePrefix = source.layerName + BACKGROUND_LAYER_SEPARATOR;
       const layerNames = Object.keys(this.glyph.layers).filter(
         (layerName) =>
           layerName.startsWith(layerNamePrefix) &&
