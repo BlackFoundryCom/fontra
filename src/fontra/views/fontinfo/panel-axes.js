@@ -910,7 +910,8 @@ function buildValueLabelList(axisController) {
   ]);
 }
 
-function updateRemoveButton(list, buttons) {
+// TODO: Refactor this.
+export function updateRemoveButton(list, buttons) {
   list.addEventListener("listSelectionChanged", (event) => {
     buttons.disableRemoveButton = list.getSelectedItemIndex() === undefined;
   });
