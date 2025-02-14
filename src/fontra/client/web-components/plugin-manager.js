@@ -34,7 +34,7 @@ export class PluginManager extends SimpleElement {
     observable.synchronizeWithLocalStorage("fontra.plugins");
     this.observable = observable;
     this.pluginList = new UIList();
-    this.pluginList.minHeight = "5em";
+    this.pluginList.style.setProperty("--container-min-height", "5em");
     this.pluginList.setItems(observable.model.plugins);
     this.pluginList.columnDescriptions = [
       {
