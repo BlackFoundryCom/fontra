@@ -201,6 +201,7 @@ export class UIList extends UnlitElement {
       this.container.scrollLeft = scrollLeft;
       this.container.scrollTop = scrollTop;
     }
+    this._dispatchEvent("itemsSet");
   }
 
   _updateVisibility() {
